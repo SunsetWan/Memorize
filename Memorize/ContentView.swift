@@ -16,23 +16,26 @@ struct ContentView: View {
                   "👺", "🤡", "💩", "👻", "💀",
                   "☠️", "👽", "👾", "🤖", "🎃"]
     
-    @State var emojiCount = 24
+    @State var emojiCount = 7
     
     var body: some View {
         VStack {
-            /// A LazyVGrid has a different strategy.
-            /// It uses all the width horizontally for its columns,
-            /// But vertically it's going to make the cards as small as possible,
-            /// So it can fit as many as possible.
-            LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
-                /// What is `id` parameter used for?
-                /// Elements must be identifiable,
-                /// so that the ForEach can keep track of which things in the array
-                /// which of the Views it's creating.
-                /// It normally does this by requiring the things in the array
-                /// to behave like an identifiable.
-                ForEach(emojis[..<emojiCount], id: \.self) { emoji in
-                    CardView(content: emoji).aspectRatio(2 / 3, contentMode: .fit)
+            Text("Memorize!").font(.largeTitle)
+            ScrollView {
+                /// A LazyVGrid has a different strategy.
+                /// It uses all the width horizontally for its columns,
+                /// But vertically it's going to make the cards as small as possible,
+                /// So it can fit as many as possible.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+                    /// What is `id` parameter used for?
+                    /// Elements must be identifiable,
+                    /// so that the ForEach can keep track of which things in the array
+                    /// which of the Views it's creating.
+                    /// It normally does this by requiring the things in the array
+                    /// to behave like an identifiable.
+                    ForEach(emojis[..<emojiCount], id: \.self) { emoji in
+                        CardView(content: emoji).aspectRatio(2 / 3, contentMode: .fit)
+                    }
                 }
             }
             .foregroundColor(.red)
@@ -81,7 +84,7 @@ struct CardView: View {
             let shape = RoundedRectangle(cornerRadius: 20)
             if isFaceUp {
                 shape.fill().foregroundColor(.white)
-                shape.stroke(lineWidth: 3)
+                shape.strokeBorder(lineWidth: 3)
                 Text(content).font(.largeTitle)
             } else {
                 shape.fill()
@@ -148,5 +151,6 @@ struct CardView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .previewInterfaceOrientation(.portrait)
     }
 }
