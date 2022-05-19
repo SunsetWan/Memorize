@@ -31,7 +31,7 @@ struct ContentView: View {
                     /// to behave like an identifiable.
                     ///
                     /// Generic struct 'ForEach' requires that 'MemoryGame<String>.Card' conform to 'Hashable'
-                    ForEach(viewModel.cards, id: \.self) { card in
+                    ForEach(viewModel.cards, id: \.id) { card in
                         CardView(card)
                             .aspectRatio(2 / 3, contentMode: .fit)
                             .onTapGesture {
