@@ -9,20 +9,16 @@ import Foundation
 
 
 
-struct MemoryGame<CardContent> {
-    struct Card: Identifiable, Hashable {
+struct MemoryGame<CardContent: Hashable> {
+    struct Card: Identifiable {
         static func == (lhs: MemoryGame<CardContent>.Card, rhs: MemoryGame<CardContent>.Card) -> Bool {
-            lhs.id == rhs.id
+            (lhs.id == rhs.id) && (lhs.content == lhs.content)
         }
         
         var isFaceUp: Bool = true
         var isMatched: Bool = false
         var content: CardContent
         var id: Int
-        
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
     }
     
     private(set) var cards: [Card]
@@ -38,7 +34,7 @@ struct MemoryGame<CardContent> {
     
     mutating func choose(_ card: Card) {
         if let chosenIndex = cards.firstIndex(where: { $0 == card }) {
-            cards[chosenIndex].isFaceUp = false
+            cards[chosenIndex].isFaceUp.toggle()
             print("chosen card:" + String(describing: cards[chosenIndex]))
             print("all cards:\n" + String(describing: cards))
         } else {
