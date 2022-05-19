@@ -40,36 +40,11 @@ struct ContentView: View {
             }
             .foregroundColor(.red)
             Spacer()
-            HStack {
-                removeButton
-                Spacer()
-                addButton
-            }
             .padding(.horizontal)
             .font(.largeTitle)
         }
         .padding(.horizontal)
         
-    }
-    
-    var addButton: some View {
-        Button(action: {
-            if emojiCount < emojis.count {
-                emojiCount += 1
-            }
-        }) {
-            Image(systemName: "plus.circle")
-        }
-    }
-    
-    var removeButton: some View {
-        Button(action: {
-            if emojiCount > 1 {
-                emojiCount -= 1
-            }
-        }) {
-            Image(systemName: "minus.circle")
-        }
     }
 }
 
