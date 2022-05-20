@@ -7,21 +7,23 @@
 
 import Foundation
 
-
-
-struct MemoryGame<CardContent: Hashable> {
+/// What's the difference?
+//struct MemoryGame<CardContent: Hashable> {
+struct MemoryGame<CardContent> where CardContent: Hashable {
     struct Card: Identifiable {
         static func == (lhs: MemoryGame<CardContent>.Card, rhs: MemoryGame<CardContent>.Card) -> Bool {
             (lhs.id == rhs.id) && (lhs.content == lhs.content)
         }
         
-        var isFaceUp: Bool = true
+        var isFaceUp: Bool = false
         var isMatched: Bool = false
         var content: CardContent
         var id: Int
     }
     
     private(set) var cards: [Card]
+    
+    private var indexOfTheOneAndOnlyFaceUpCard: Int?
     
     init(numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
         cards = [Card]()
@@ -33,12 +35,26 @@ struct MemoryGame<CardContent: Hashable> {
     }
     
     mutating func choose(_ card: Card) {
-        if let chosenIndex = cards.firstIndex(where: { $0 == card }) {
+        if let chosenIndex = cards.firstIndex(where: { $0 == card }),
+           !cards[chosenIndex].isFaceUp,
+           !cards[chosenIndex].isMatched
+        {
+            if let indexOfTheOneAndOnlyFaceUpCard = indexOfTheOneAndOnlyFaceUpCard {
+                if cards[indexOfTheOneAndOnlyFaceUpCard] == cards[chosenIndex] {
+                    cards[indexOfTheOneAndOnlyFaceUpCard].isMatched = true
+                    cards[chosenIndex].isMatched = true
+                }
+                self.indexOfTheOneAndOnlyFaceUpCard = nil
+            } else {
+                for index in cards.indices {
+                    cards[index].isFaceUp = false
+                }
+                indexOfTheOneAndOnlyFaceUpCard = chosenIndex
+            }
+            
+            
+            
             cards[chosenIndex].isFaceUp.toggle()
-            print("chosen card:" + String(describing: cards[chosenIndex]))
-            print("all cards:\n" + String(describing: cards))
-        } else {
-            fatalError()
         }
     }
 }
