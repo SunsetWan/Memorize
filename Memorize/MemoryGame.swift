@@ -40,7 +40,7 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
            !cards[chosenIndex].isMatched
         {
             if let indexOfTheOneAndOnlyFaceUpCard = indexOfTheOneAndOnlyFaceUpCard {
-                if cards[indexOfTheOneAndOnlyFaceUpCard] == cards[chosenIndex] {
+                if cards[indexOfTheOneAndOnlyFaceUpCard].content == cards[chosenIndex].content {
                     cards[indexOfTheOneAndOnlyFaceUpCard].isMatched = true
                     cards[chosenIndex].isMatched = true
                 }
@@ -49,7 +49,7 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
                 for index in cards.indices {
                     cards[index].isFaceUp = false
                 }
-                indexOfTheOneAndOnlyFaceUpCard = chosenIndex
+                self.indexOfTheOneAndOnlyFaceUpCard = chosenIndex
             }
             
             
