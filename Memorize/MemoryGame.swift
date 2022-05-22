@@ -17,13 +17,17 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
         
         var isFaceUp: Bool = false
         var isMatched: Bool = false
-        var content: CardContent
-        var id: Int
+        let content: CardContent
+        let id: Int
     }
     
     private(set) var cards: [Card]
     
-    private var indexOfTheOneAndOnlyFaceUpCard: Int?
+    private var indexOfTheOneAndOnlyFaceUpCard: Int? {
+        get { cards.indices.filter { cards[$0].isFaceUp }.oneAndOnly }
+        
+        set { cards.indices.forEach { cards[$0].isFaceUp = ($0 == newValue) } }
+    }
     
     init(numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
         cards = [Card]()
@@ -44,17 +48,23 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
                     cards[indexOfTheOneAndOnlyFaceUpCard].isMatched = true
                     cards[chosenIndex].isMatched = true
                 }
-                self.indexOfTheOneAndOnlyFaceUpCard = nil
+                cards[chosenIndex].isFaceUp = true
             } else {
-                for index in cards.indices {
-                    cards[index].isFaceUp = false
-                }
                 self.indexOfTheOneAndOnlyFaceUpCard = chosenIndex
             }
             
             
-            
-            cards[chosenIndex].isFaceUp.toggle()
+        }
+    }
+}
+
+
+extension Array {
+    var oneAndOnly: Element? {
+        if count == 1 {
+            return first
+        } else {
+            return nil
         }
     }
 }

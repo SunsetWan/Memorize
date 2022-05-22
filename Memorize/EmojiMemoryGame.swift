@@ -10,14 +10,17 @@ import SwiftUI
 /// View Model
 /// What is `ObservableObject`?
 class EmojiMemoryGame: ObservableObject {
-    static let emojis = ["😤", "😠", "😡", "🤬", "😱",
+    
+    typealias Card = MemoryGame<String>.Card
+    
+    private static let emojis = ["😤", "😠", "😡", "🤬", "😱",
                   "🤯", "😳", "🥵", "🥶", "😶‍🌫️",
                   "😨", "😰", "😥", "😓", "🤗",
                   "🫡", "🫢", "🫣", "🤭", "🤔",
                   "👺", "🤡", "💩", "👻", "💀",
                   "☠️", "👽", "👾", "🤖", "🎃"]
     
-    static func createMemoryGame() -> MemoryGame<String> {
+    private static func createMemoryGame() -> MemoryGame<String> {
         MemoryGame<String>(numberOfPairsOfCards: 3) { pairIndex in
             emojis[pairIndex]
         }
@@ -28,12 +31,12 @@ class EmojiMemoryGame: ObservableObject {
     /// `@Published` help us automatically do objectWillChange.send()
     @Published private(set) var model = createMemoryGame()
     
-    var cards: [MemoryGame<String>.Card] {
+    var cards: [Card] {
         model.cards
     }
     
     // MARK: - Intent(s)
-    func choose(_ card: MemoryGame<String>.Card) {
+    func choose(_ card: Card) {
         /// IMPORTANT:
         objectWillChange.send()
         model.choose(card)

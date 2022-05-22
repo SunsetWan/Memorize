@@ -7,12 +7,21 @@
 
 import SwiftUI
 
-struct ContentView: View {
+/// Keyword: `@State`:
+/// Changes to this @State var will cause your View to rebuild its body
+/// It's sort of like an @ObservedObject but on a random piece of data instead of a ViewModel
+/// This is actually going to make some space **in the heap** for this.
+/// When your read-only Views gets rebuilt, the new version will continue to point to it.
+/// In other words, changes to your View(via its arguments) will not dump this state.
+/// Use `@State` sparingly!
+
+struct EmojiMemoryGameView: View {
     /// `@ObservedObject` means that when viewModel did change,
     /// please rebuild my entire body
     ///
     /// Property wrapper can only be applied to a 'var'
-    @ObservedObject var viewModel: EmojiMemoryGame
+    /// It's the viewModel.
+    @ObservedObject var game: EmojiMemoryGame
     
     var body: some View {
         VStack {
@@ -31,11 +40,11 @@ struct ContentView: View {
                     /// to behave like an identifiable.
                     ///
                     /// Generic struct 'ForEach' requires that 'MemoryGame<String>.Card' conform to 'Hashable'
-                    ForEach(viewModel.cards, id: \.id) { card in
+                    ForEach(game.cards, id: \.id) { card in
                         CardView(card)
                             .aspectRatio(2 / 3, contentMode: .fit)
                             .onTapGesture {
-                                viewModel.choose(card)
+                                game.choose(card)
                             }
                     }
                 }
@@ -48,9 +57,9 @@ struct ContentView: View {
 }
 
 struct CardView: View {
-    let card: MemoryGame<String>.Card
+    private let card: EmojiMemoryGame.Card
     
-    init(_ card: MemoryGame<String>.Card) {
+    init(_ card: EmojiMemoryGame.Card) {
         self.card = card
     }
     
@@ -123,6 +132,6 @@ struct CardView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let game = EmojiMemoryGame()
-        ContentView(viewModel: game)
+        EmojiMemoryGameView(game: game)
     }
 }
