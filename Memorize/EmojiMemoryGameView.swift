@@ -10,7 +10,7 @@ import SwiftUI
 /// Animation:
 /// `Shape`s is animatable
 /// `ViewModifier`s is animatable too!
-/// Only changes can be animated
+/// 1. Only changes can be animated
 /// Animation is showing the user changes that have already happened (i.e. the recent past)
 /// `ViewModifier` are the primary "change agents" in the UI.
 /// A change to a `ViewModifier`'s arguments has to happen **after** the View is initially put in the UI.
@@ -18,9 +18,12 @@ import SwiftUI
 /// Not all `ViewModifier` arguments are animatable (e.g. .font's are not), but most are.
 /// When a View arrives or departs, the **entire thing** is animated as a unit.
 ///
-/// A View coming **on-screen** is only animated if it's **joining a container that is already in the UI**.
-/// A View going **off-screen** is only animated if it's **leaving a container that is staying in the UI**.
+/// 2. A View coming **on-screen** is only animated if it's **joining a container that is already in the UI**.
+/// 3. A View going **off-screen** is only animated if it's **leaving a container that is staying in the UI**.
 /// `ForEach` and `if-else` in ViewBuilders are common ways to make Views come and go.
+///
+/// The .animation modifier does not work how you might think on a **container**.
+/// A container just **propagates** the .animation modifier to all the views it contains.
 
 /// `ViewModifier`:
 /// `ViewModifier`s actually are Views!
@@ -105,7 +108,17 @@ struct CardView: View {
                 Pie(startAngle: Angle(degrees: 0 - 90),
                     endAngle: Angle(degrees: 110 - 90))
                 .padding(5).opacity(0.5)
-                Text(card.content).font(font(in: geometry.size))
+                Text(card.content)
+                    .rotationEffect(Angle(degrees: card.isMatched ? 360 : 0))
+                
+                /// NOTE: This is the implicit animation modifier
+                    .animation(Animation.easeInOut(duration: 2).repeatForever(autoreverses: false), value: card.isMatched)
+                
+                /// NOTE: .font modifier that is varying the size of the font
+                /// And font is a ViewModifier that is not animatable.
+//                    .font(font(in: geometry.size))
+                    .font(Font.system(size: DrawingConstants.fontSize))
+                    .scaleEffect(scale(thatFits: geometry.size))
             }
 //            .modifier(Cardify(isFaceUp: card.isFaceUp))
             .cardify(isFaceUp: card.isFaceUp)
@@ -116,10 +129,15 @@ struct CardView: View {
         Font.system(size: min(size.width, size.height) * DrawingConstants.fontScale)
     }
     
+    private func scale(thatFits size: CGSize) -> CGFloat {
+        min(size.width, size.height) / (DrawingConstants.fontSize / DrawingConstants.fontScale)
+    }
+    
     private struct DrawingConstants {
         static let cornerRadius: CGFloat = 20
         static let lineWidth: CGFloat = 3
         static let fontScale: CGFloat = 0.7
+        static let fontSize: CGFloat = 32
         
         private init() {}
     }
