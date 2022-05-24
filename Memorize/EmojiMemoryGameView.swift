@@ -10,7 +10,19 @@ import SwiftUI
 /// Animation:
 /// `Shape`s is animatable
 /// `ViewModifier`s is animatable too!
+/// Only changes can be animated
+/// Animation is showing the user changes that have already happened (i.e. the recent past)
+/// `ViewModifier` are the primary "change agents" in the UI.
+/// A change to a `ViewModifier`'s arguments has to happen **after** the View is initially put in the UI.
+/// In other words, only changes in a `ViewModifier`'s arguments **since it joined the UI** are animated.
+/// Not all `ViewModifier` arguments are animatable (e.g. .font's are not), but most are.
+/// When a View arrives or departs, the **entire thing** is animated as a unit.
+///
+/// A View coming **on-screen** is only animated if it's **joining a container that is already in the UI**.
+/// A View going **off-screen** is only animated if it's **leaving a container that is staying in the UI**.
+/// `ForEach` and `if-else` in ViewBuilders are common ways to make Views come and go.
 
+/// `ViewModifier`:
 /// `ViewModifier`s actually are Views!
 
 /// Keyword: `@State`:
