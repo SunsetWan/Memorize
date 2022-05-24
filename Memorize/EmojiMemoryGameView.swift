@@ -44,52 +44,68 @@ struct EmojiMemoryGameView: View {
     /// It's the viewModel.
     @ObservedObject var game: EmojiMemoryGame
     
+    var gameBody: some View {
+        //            ScrollView {
+        //                /// A LazyVGrid has a different strategy.
+        //                /// It uses all the width horizontally for its columns,
+        //                /// But vertically it's going to make the cards as small as possible,
+        //                /// So it can fit as many as possible.
+        //                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
+        //                    /// What is `id` parameter used for?
+        //                    /// Elements must be identifiable,
+        //                    /// so that the ForEach can keep track of which things in the array
+        //                    /// which of the Views it's creating.
+        //                    /// It normally does this by requiring the things in the array
+        //                    /// to behave like an identifiable.
+        //                    ///
+        //                    /// Generic struct 'ForEach' requires that 'MemoryGame<String>.Card' conform to 'Hashable'
+        //                    ForEach(game.cards, id: \.id) { card in
+        //                        CardView(card)
+        //                            .aspectRatio(2 / 3, contentMode: .fit)
+        //                            .onTapGesture {
+        //                                game.choose(card)
+        //                            }
+        //                    }
+        //                }
+        //            }
+        //            .foregroundColor(.red)
+        //            .padding()
+        
+        AspectVGrid(items: game.cards, aspectRatio: 2 / 3) { card in
+            cardView(for: card)
+        }
+        .foregroundColor(.red)
+        .padding(.horizontal)
+    }
+    
+    var shuffleButton: some View {
+        Button("Shuffle") {
+            withAnimation { // This is the explicit animation.
+                game.shuffle()
+            }
+        }
+    }
+    
     var body: some View {
         VStack {
             Text("Memorize!").font(.largeTitle)
-//            ScrollView {
-//                /// A LazyVGrid has a different strategy.
-//                /// It uses all the width horizontally for its columns,
-//                /// But vertically it's going to make the cards as small as possible,
-//                /// So it can fit as many as possible.
-//                LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-//                    /// What is `id` parameter used for?
-//                    /// Elements must be identifiable,
-//                    /// so that the ForEach can keep track of which things in the array
-//                    /// which of the Views it's creating.
-//                    /// It normally does this by requiring the things in the array
-//                    /// to behave like an identifiable.
-//                    ///
-//                    /// Generic struct 'ForEach' requires that 'MemoryGame<String>.Card' conform to 'Hashable'
-//                    ForEach(game.cards, id: \.id) { card in
-//                        CardView(card)
-//                            .aspectRatio(2 / 3, contentMode: .fit)
-//                            .onTapGesture {
-//                                game.choose(card)
-//                            }
-//                    }
-//                }
-//            }
-//            .foregroundColor(.red)
-//            .padding()
-            
-            AspectVGrid(items: game.cards, aspectRatio: 2 / 3) { card in
-                cardView(for: card)
-            }
-            .foregroundColor(.red)
-            .padding(.horizontal)
+            gameBody
+            shuffleButton
         }
     }
     
     @ViewBuilder
     private func cardView(for card: EmojiMemoryGame.Card) -> some View {
         if card.isMatched && !card.isFaceUp {
-            Rectangle().opacity(0)
+//            Rectangle().opacity(0)
+            Color.clear // Colors that can be used as a View, another example is `Path`
         } else {
             CardView(card)
                 .padding(4)
                 .onTapGesture {
-                    game.choose(card)
+                    withAnimation() {
+                        game.choose(card)
+                    }
                 }
         }
     }
@@ -112,15 +128,15 @@ struct CardView: View {
                     .rotationEffect(Angle(degrees: card.isMatched ? 360 : 0))
                 
                 /// NOTE: This is the implicit animation modifier
-                    .animation(Animation.easeInOut(duration: 2).repeatForever(autoreverses: false), value: card.isMatched)
+                    .animation(Animation.easeInOut(duration: 2).repeatCount(2, autoreverses: false), value: card.isMatched)
                 
                 /// NOTE: .font modifier that is varying the size of the font
                 /// And font is a ViewModifier that is not animatable.
-//                    .font(font(in: geometry.size))
+                //                    .font(font(in: geometry.size))
                     .font(Font.system(size: DrawingConstants.fontSize))
                     .scaleEffect(scale(thatFits: geometry.size))
             }
-//            .modifier(Cardify(isFaceUp: card.isFaceUp))
+            //            .modifier(Cardify(isFaceUp: card.isFaceUp))
             .cardify(isFaceUp: card.isFaceUp)
         }
     }

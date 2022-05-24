@@ -36,6 +36,7 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
             cards.append(Card(content: content, id: pairIndex * 2))
             cards.append(Card(content: content, id: pairIndex * 2 + 1))
         }
+        cards.shuffle()
     }
     
     mutating func choose(_ card: Card) {
@@ -55,6 +56,10 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
             
             
         }
+    }
+    
+    mutating func shuffle() {
+        cards.shuffle()
     }
 }
 
