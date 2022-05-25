@@ -148,12 +148,30 @@ struct EmojiMemoryGameView: View {
         }
     }
     
+    var restartButton: some View {
+        Button("Restart") {
+            withAnimation {
+                dealt = []
+                game.restart()
+            }
+        }
+    }
+    
     var body: some View {
-        VStack {
-            Text("Memorize!").font(.largeTitle)
-            gameBody
-            deckBody
-            shuffleButton
+        ZStack(alignment: .bottom) {
+            VStack {
+                Text("Memorize!").font(.largeTitle)
+                gameBody
+                HStack {
+                    restartButton
+                    Spacer()
+                    shuffleButton
+                }
+                .padding()
+            }
+            /// deckBody and gameBody are mutually exclusive!!!,
+            /// so it's nice to put them in ZStack
+            deckBody.padding()
         }
     }
     
