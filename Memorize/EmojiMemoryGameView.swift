@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// What's the diff between transition and animation?
+
 /// Animation:
 /// `Shape`s is animatable
 /// `ViewModifier`s is animatable too!
@@ -44,6 +46,16 @@ struct EmojiMemoryGameView: View {
     /// It's the viewModel.
     @ObservedObject var game: EmojiMemoryGame
     
+    @State private var dealt = Set<Int>()
+    
+    private func deal(_ card: EmojiMemoryGame.Card) {
+        dealt.insert(card.id)
+    }
+    
+    private func isUndealt(_ card: EmojiMemoryGame.Card) -> Bool {
+        !dealt.contains(card.id)
+    }
+    
     var gameBody: some View {
         //            ScrollView {
         //                /// A LazyVGrid has a different strategy.
@@ -74,8 +86,35 @@ struct EmojiMemoryGameView: View {
         AspectVGrid(items: game.cards, aspectRatio: 2 / 3) { card in
             cardView(for: card)
         }
+        .onAppear { // It's a great way to not put a View on screen until afer its container appears.
+            // "deal" cards
+            withAnimation {
+                for card in game.cards {
+                    deal(card)
+                }
+            }
+        }
         .foregroundColor(.red)
         .padding(.horizontal)
+    }
+    
+    var deckBody: some View {
+        ZStack {
+//            ForEach(game.cards.filter({ isUndealt($0)})) { card in
+            ForEach(game.cards.filter(isUndealt(_:))) { card in
+                CardView(card)
+            }
+        }
+        .frame(width: 60, height: 90)
+    }
+    
+    private struct CardConstants {
+        static let color = Color.red
+        static let aspectRatio: CGFloat = 2 / 3
+        static let dealDuration: Double = 0.5
+        static let totalDealDuration: Double = 2
+        static let undealtHeight: CGFloat = 90
+        static let undealtWidth = undealtHeight * aspectRatio
     }
     
     var shuffleButton: some View {
@@ -96,14 +135,16 @@ struct EmojiMemoryGameView: View {
     
     @ViewBuilder
     private func cardView(for card: EmojiMemoryGame.Card) -> some View {
-        if card.isMatched && !card.isFaceUp {
+        if isUndealt(card) || (card.isMatched && !card.isFaceUp) {
 //            Rectangle().opacity(0)
             Color.clear // Colors that can be used as a View, another example is `Path`
         } else {
             CardView(card)
                 .padding(4)
+//                .transition(AnyTransition.scale.animation(Animation.easeInOut))
+                .transition(AnyTransition.asymmetric(insertion: .scale, removal: .opacity).animation(.easeInOut(duration: 1)))
                 .onTapGesture {
-                    withAnimation(.easeInOut) {
+                    withAnimation {
                         game.choose(card)
                     }
                 }
