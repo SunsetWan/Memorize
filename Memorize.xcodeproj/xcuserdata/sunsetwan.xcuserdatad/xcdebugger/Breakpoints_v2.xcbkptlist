@@ -62,8 +62,8 @@
             filePath = "Memorize/MemoryGame.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
+            startingLineNumber = "107"
+            endingLineNumber = "107"
             landmarkName = "choose(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "Memorize/MemoryGame.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "48"
-            endingLineNumber = "48"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
             landmarkName = "choose(_:)"
             landmarkType = "7">
          </BreakpointContent>
