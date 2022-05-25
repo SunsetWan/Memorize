@@ -202,6 +202,8 @@ struct EmojiMemoryGameView: View {
 }
 
 struct CardView: View {
+    @State private var animatedBonusRemaining: Double = 0;
+    
     private let card: EmojiMemoryGame.Card
     
     init(_ card: EmojiMemoryGame.Card) {
@@ -211,14 +213,29 @@ struct CardView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Pie(startAngle: Angle(degrees: 0 - 90),
-                    endAngle: Angle(degrees: 110 - 90))
-                .padding(5).opacity(0.5)
+                Group {
+                    if card.isConsumingBonusTime {
+                        Pie(startAngle: Angle(degrees: 0 - 90),
+                            endAngle: Angle(degrees: (1 - animatedBonusRemaining) * 360 - 90))
+                        .onAppear { // `onAppear` is the trigger to start this animation!!!
+                            animatedBonusRemaining = card.bonusRemaining
+                            withAnimation(.linear(duration: card.bonusTimeRemaining)) {
+                                animatedBonusRemaining = 0
+                            }
+                        }
+                    } else {
+                        Pie(startAngle: Angle(degrees: 0 - 90),
+                            endAngle: Angle(degrees: (1 - card.bonusRemaining) * 360 - 90))
+                    }
+                }
+                .padding(5)
+                .opacity(0.5)
+                
                 Text(card.content)
                     .rotationEffect(Angle(degrees: card.isMatched ? 360 : 0))
                 
                 /// NOTE: This is the implicit animation modifier
-                    .animation(Animation.easeInOut(duration: 2).repeatCount(2, autoreverses: false), value: card.isMatched)
+                    .animation(Animation.easeInOut(duration: 2).repeatForever(autoreverses: false), value: card.isMatched)
                 
                 /// NOTE: .font modifier that is varying the size of the font
                 /// And font is a ViewModifier that is not animatable.

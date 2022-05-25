@@ -15,8 +15,24 @@ struct MemoryGame<CardContent> where CardContent: Hashable {
             (lhs.id == rhs.id) && (lhs.content == lhs.content)
         }
         
-        var isFaceUp: Bool = false
-        var isMatched: Bool = false
+        var isFaceUp: Bool = false {
+            didSet {
+                if isFaceUp {
+                    startUsingBonusTime()
+                } else {
+                    stopUsingBonusTime()
+                }
+            }
+        }
+        
+        
+        var isMatched: Bool = false {
+            didSet {
+                stopUsingBonusTime()
+            }
+        }
+        
+        
         let content: CardContent
         let id: Int
         
