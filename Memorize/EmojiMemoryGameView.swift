@@ -48,6 +48,8 @@ struct EmojiMemoryGameView: View {
     
     @State private var dealt = Set<Int>()
     
+    @Namespace private var dealingNamespace
+    
     private func deal(_ card: EmojiMemoryGame.Card) {
         dealt.insert(card.id)
     }
@@ -86,26 +88,47 @@ struct EmojiMemoryGameView: View {
         AspectVGrid(items: game.cards, aspectRatio: 2 / 3) { card in
             cardView(for: card)
         }
-        .onAppear { // It's a great way to not put a View on screen until afer its container appears.
-            // "deal" cards
-            withAnimation {
-                for card in game.cards {
-                    deal(card)
-                }
-            }
-        }
+//        .onAppear { // It's a great way to not put a View on screen until afer its container appears.
+//            // "deal" cards
+//            withAnimation(.easeInOut(duration: 5)) {
+//                for card in game.cards {
+//                    deal(card)
+//                }
+//            }
+//        }
         .foregroundColor(.red)
         .padding(.horizontal)
     }
     
     var deckBody: some View {
-        ZStack {
-//            ForEach(game.cards.filter({ isUndealt($0)})) { card in
+        ZStack { // ZStack is filexable view
+            //            ForEach(game.cards.filter({ isUndealt($0)})) { card in
             ForEach(game.cards.filter(isUndealt(_:))) { card in
                 CardView(card)
+                    .matchedGeometryEffect(id: card.id, in: dealingNamespace)
+                    .transition(AnyTransition.asymmetric(insertion: .opacity, removal: .identity).animation(.easeInOut(duration: 1)))
             }
         }
-        .frame(width: 60, height: 90)
+        .onTapGesture { // It's a great way to not put a View on screen until afer its container appears.
+            // "deal" cards
+            for card in game.cards {
+                withAnimation(dealAnimation(for: card)) {
+                    deal(card)
+                }
+            }
+        }
+        .frame(width: CardConstants.undealtWidth,
+               height: CardConstants.undealtHeight)
+        .foregroundColor(CardConstants.color)
+    }
+    
+    /// In order to deal card one by one, you should delay card animation one by one!
+    private func dealAnimation(for card: EmojiMemoryGame.Card) -> Animation {
+        var delay: Double = 0.0
+        if let index = game.cards.firstIndex(where: { $0.id == card.id }) {
+            delay =  Double(index) * (CardConstants.totalDealDuration / Double(game.cards.count))
+        }
+        return Animation.easeInOut(duration: CardConstants.dealDuration).delay(delay)
     }
     
     private struct CardConstants {
@@ -129,8 +152,14 @@ struct EmojiMemoryGameView: View {
         VStack {
             Text("Memorize!").font(.largeTitle)
             gameBody
+            deckBody
             shuffleButton
         }
+    }
+    
+    /// Higer numbers will always be in the front!
+    private func zIndex(of card: EmojiMemoryGame.Card) -> Double {
+        -Double(game.cards.firstIndex(where: { $0.id == card.id }) ?? 0)
     }
     
     @ViewBuilder
@@ -140,9 +169,11 @@ struct EmojiMemoryGameView: View {
             Color.clear // Colors that can be used as a View, another example is `Path`
         } else {
             CardView(card)
+                .matchedGeometryEffect(id: card.id, in: dealingNamespace)
                 .padding(4)
 //                .transition(AnyTransition.scale.animation(Animation.easeInOut))
-                .transition(AnyTransition.asymmetric(insertion: .scale, removal: .opacity).animation(.easeInOut(duration: 1)))
+                .transition(AnyTransition.asymmetric(insertion: .identity, removal: .scale).animation(.easeInOut(duration: 1)))
+                .zIndex(zIndex(of: card))
                 .onTapGesture {
                     withAnimation {
                         game.choose(card)
